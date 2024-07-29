@@ -9,8 +9,25 @@ services:
       - cryptography
       - email
       - analytics
+      - schema
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - proxy
+
+  #################### The gRPC Schema Service Container ########################
+  schema:
+    image: registry.digitalocean.com/baas-registry/baas-schema:latest
+    environment:
+      GO_ENV: "production"
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_SCHEMA}
+    depends_on:
+      mysql:
+        condition: service_healthy
     networks:
       - proxy
 
@@ -23,7 +40,10 @@ services:
       MYSQL_PORT: ${MYSQL_PORT}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_SYSTEM}
+    depends_on:
+      mysql:
+        condition: service_healthy
     networks:
       - proxy
 
@@ -36,9 +56,12 @@ services:
       MYSQL_PORT: ${MYSQL_PORT}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_SYSTEM}
       CRYPTOGRAPHY_SERVICE_HOST: ${CRYPTOGRAPHY_SERVICE_HOST}
       CRYPTOGRAPHY_SERVICE_PORT: ${CRYPTOGRAPHY_SERVICE_PORT}
+    depends_on:
+      mysql:
+        condition: service_healthy
     networks:
       - proxy
 
@@ -69,8 +92,28 @@ services:
     networks:
       - proxy
 
+  #################### The MySQL Container ########################
+  mysql:
+    image: mysql:8.4
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_SYSTEM}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - proxy
+
 volumes:
   mongo-data:
+  mysql-data:
 
 networks:
   proxy:

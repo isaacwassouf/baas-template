@@ -1,2 +1,6 @@
 up:
-	docker compose up --scale cryptography=5 --scale email=1
+	docker compose up
+down:
+	docker compose down
+down-v:
+	docker compose down -v
