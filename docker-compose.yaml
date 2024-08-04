@@ -15,9 +15,43 @@ services:
     networks:
       - proxy
 
+  users:
+    image: registry.digitalocean.com/baas-registry/baas-users:latest
+    environment:
+      GO_ENV: "production"
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_SYSTEM}
+
+      EMAIL_SERVICE_HOST: ${EMAIL_SERVICE_HOST}
+      EMAIL_SERVICE_PORT: ${EMAIL_SERVICE_PORT}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - proxy
+
   #################### The gRPC Schema Service Container ########################
   schema:
     image: registry.digitalocean.com/baas-registry/baas-schema:latest
+    environment:
+      GO_ENV: "production"
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_SCHEMA}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - proxy
+
+  ################### The gRPC Schema Service Container ########################
+  content:
+    image: registry.digitalocean.com/baas-registry/baas-content:latest
     environment:
       GO_ENV: "production"
       MYSQL_HOST: ${MYSQL_HOST}
