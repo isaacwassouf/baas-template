@@ -3,7 +3,6 @@ services:
     image: nginx:1.20.0
     container_name: nginx
     ports:
-      - "50052:50052"
       - "80:80"
     depends_on:
       - cryptography
@@ -33,6 +32,9 @@ services:
       EMAIL_SERVICE_PORT: ${EMAIL_SERVICE_PORT}
 
       JWT_SECRET: ${JWT_SECRET}
+
+      GITHUB_REDIRECT_URI: ${GITHUB_REDIRECT_URI}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
     depends_on:
       mysql:
         condition: service_healthy
@@ -146,6 +148,11 @@ services:
       ANALYTICS_SERVICE_PORT: ${ANALYTICS_SERVICE_PORT}
 
       JWT_SECRET: ${JWT_SECRET}
+
+      DASHBOARD_COOKIE_DOMAIN: ${DASHBOARD_COOKIE_DOMAIN}
+
+      GITHUB_REDIRECT_URI: ${GITHUB_REDIRECT_URI}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
     networks:
       - proxy
     depends_on:
@@ -160,7 +167,7 @@ services:
     image: registry.digitalocean.com/baas-registry/baas-dashboard:latest
     environment:
       JWT_SECRET: ${JWT_SECRET}
-      PUBLIC_API_BASE_URL: ${PUBLIC_API_BASE_URL}
+      PUBLIC_API_BASE_URL: ${API_BASE_URL}
     networks:
       - proxy
     depends_on:
