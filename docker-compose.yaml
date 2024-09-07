@@ -4,6 +4,7 @@ services:
     container_name: nginx
     ports:
       - "80:80"
+      - "50052:50052"
     depends_on:
       - cryptography
       - email
@@ -30,6 +31,9 @@ services:
 
       EMAIL_SERVICE_HOST: ${EMAIL_SERVICE_HOST}
       EMAIL_SERVICE_PORT: ${EMAIL_SERVICE_PORT}
+
+      CRYPTOGRAPHY_SERVICE_HOST: ${CRYPTOGRAPHY_SERVICE_HOST}
+      CRYPTOGRAPHY_SERVICE_PORT: ${CRYPTOGRAPHY_SERVICE_PORT}
 
       JWT_SECRET: ${JWT_SECRET}
 
